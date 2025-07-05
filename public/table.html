@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Port & Address Table</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-10">
+
+  <script>
+    if (!localStorage.getItem("auth")) {
+      window.location.href = "index.html";
+    }
+
+    function deleteRow(id) {
+      console.log("deleteRow", id);
+
+      fetch(`/api/ports/${id}`, {
+        method: "DELETE",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            // Remove row from DOM
+            const row = document.getElementById(`row-${id}`);
+            if (row) row.remove();
+          } else {
+            alert("Failed to delete row.");
+          }
+        })
+        .catch((err) => {
+          console.error("Error deleting row:", err);
+        });
+    }
+  </script>
+
+  <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+    <h2 class="text-2xl font-bold text-blue-800 mb-4">Port Mapping Table</h2>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-300">
+      <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
+        <thead class="bg-blue-50 text-blue-700">
+          <tr>
+            <th class="px-4 py-3 border">ID</th>
+            <th class="px-4 py-3 border">Name</th>
+            <th class="px-4 py-3 border">Status</th>
+            <th class="px-4 py-3 border">
+              SERVER IP
+              <input id="serverIP" type="text" placeholder="e.g. 192.168.0.1"
+                class="mt-1 w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 text-sm" />
+            </th>
+            <th class="px-4 py-3 border">
+              Server Port
+              <input id="serverPort" type="number" placeholder="e.g. 8080"
+                class="mt-1 w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 text-sm" />
+            </th>
+            <th class="px-4 py-3 border">
+              Local Port
+              <input id="localPort" type="number" placeholder="e.g. 3000"
+                class="mt-1 w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 text-sm" />
+            </th>
+
+            <th class="px-4 py-3 border text-center align-bottom">
+              <button onclick="addRow()"
+                class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow text-sm font-semibold">
+                + Add
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="dataBody" class="divide-y divide-gray-100">
+          <!-- Dynamic content will be loaded here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function loadData() {
+      fetch("/api/ports")
+        .then((res) => res.json())
+        .then((rows) => {
+          const tbody = document.getElementById("dataBody");
+          tbody.innerHTML = "";
+
+          rows.forEach((row) => {
+            const tr = document.createElement("tr");
+            tr.id = `row-${row.id}`;
+            tr.className = "hover:bg-gray-50";
+
+            tr.innerHTML = `
+          <td class="px-4 py-2 border">${row.id}</td>
+          <td class="px-4 py-2 border">Service ${row.id}</td>
+          <td class="px-4 py-2 border ${row.status === 'Running' ? 'text-green-600' : 'text-yellow-600'} font-semibold">${row.status}</td>
+          <td class="px-4 py-2 border">${row.serverIP}</td>
+          <td class="px-4 py-2 border">${row.server_port}</td>
+          <td class="px-4 py-2 border">${row.local_port}</td>
+          <td class="px-4 py-2 border text-center">
+            <button onclick="deleteRow(${row.id})" class="text-red-600 hover:underline text-sm">Remove</button>
+          </td>
+        `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+
+    function addRow() {
+      const serverPort = document.getElementById("serverPort").value;
+      const localPort = document.getElementById("localPort").value;
+      const serverIP = document.getElementById("serverIP").value;
+
+      if (!serverPort || !localPort || !serverIP) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      fetch("/api/ports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          server_port: parseInt(serverPort),
+          local_port: parseInt(localPort),
+          serverIP: serverIP
+        })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            loadData();
+            document.getElementById("serverPort").value = "";
+            document.getElementById("localPort").value = "";
+            document.getElementById("serverIP").value = "";
+          } else {
+            alert("Error adding entry");
+          }
+        });
+    }
+
+    // Load table data on page load
+    window.onload = loadData;
+  </script>
+</body>
+
+</html>

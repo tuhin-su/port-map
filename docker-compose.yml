@@ -1,0 +1,8 @@
+services:
+  app:
+    image: tuhinsu/tailscale-node:lts
+    environment:
+      - LG_USERNAME=${LG_USERNAME}
+      - LG_PASSWD=${LG_PASSWD}
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_SERVER=${TS_SERVER}

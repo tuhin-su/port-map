@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function handleLogin(event) {
+      const email = document.querySelector("#email").value;
+      const password = document.querySelector("#password").value;
+      console.log("handleLogin", email, password);
+
+      fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: email, password }),
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Login failed");
+          return res.json();
+        })
+        .then(() => {
+          localStorage.setItem("auth", "true");
+          window.location.href = "table.html";
+        })
+        .catch(err => {
+          console.error("Login error:", err);
+        });
+    }
+  </script>
+</head>
+
+<body
+  class="min-h-screen bg-gradient-to-br from-blue-500 via-white-500 to-indigo-500 flex items-center justify-center font-sans">
+
+  <div class="bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl p-8 sm:p-12 w-[90%] max-w-md border border-white/30">
+
+    <div class="text-center mb-8">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-white drop-shadow-lg" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M12 11c0-1.38 1.12-2.5 2.5-2.5S17 9.62 17 11s-1.12 2.5-2.5 2.5S12 12.38 12 11z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M12 17c3 0 5.5-2.5 5.5-6S15 5 12 5s-5.5 2.5-5.5 6 2.5 6 5.5 6z" />
+      </svg>
+      <h1 class="text-white text-3xl font-bold mt-4 tracking-wider">Welcome Back</h1>
+      <p class="text-white/70 mt-1 text-sm">Please login to your account</p>
+    </div>
+
+    <!-- Login form -->
+    <div>
+      <div class="mb-5">
+        <label class="block text-white text-sm mb-2" for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com"
+          class="w-full px-4 py-2 rounded-lg bg-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white/40 transition duration-200"
+          required />
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-white text-sm mb-2" for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••"
+          class="w-full px-4 py-2 rounded-lg bg-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white/40 transition duration-200"
+          required />
+      </div>
+
+      <button type="button" onclick="handleLogin()"
+        class="w-full py-2 rounded-lg bg-white text-purple-600 font-semibold text-lg shadow-md hover:bg-purple-100 hover:text-purple-800 transition duration-300">
+        Sign In
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-white text-sm">
+        Don't have an account?
+        <a href="#" class="underline text-white hover:text-yellow-300">Register</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+
+</html>
