@@ -6,3 +6,15 @@ services:
       - LG_PASSWD=${LG_PASSWD}
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_SERVER=${TS_SERVER}
+    networks:
+      - common
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    privileged: true  # optional but guarantees access for TUN and iptables
+
+networks:
+  common:
+    external: true
